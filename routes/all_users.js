@@ -10,7 +10,7 @@ router.get('/all_users', (request, response, next) => {
 });
 
 router.get("/all_users/:id", (request, response, next) => {
-    queries.read("bands", request.params.id).then(all_users => {
+    queries.read("all_users", request.params.id).then(all_users => {
         all_users
             ? response.json({all_users})
             : response.status(404).json({message: 'Not found'})
