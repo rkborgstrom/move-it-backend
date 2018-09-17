@@ -1,18 +1,50 @@
-'use strict'; 
-/* eslint-env node */
-/* eslint-disable no-use-before-define */
+const express = require('express');
+const router = express.Router();
+const queries = require('../queries');
 
-let router = require('express').Router();
-let env = process.env.NODE_ENV || 'development';
-let config = require('../knexfile')[env];
-let knex = require('knex')(config);
-
-router.get('/all_users', (req, res) => {
-    res.json({all_users}) //renders account ejs file
+router.get('/all_users', (request, response, next) => {
+    queries.list('all_users').then(all_users => {
+    response.json({all_users});
+})
+.catch(next)
 });
 
-// router.post('all_users', (req, res, next) => {
-//     knex('all_users')
+router.get("/all_users/:id", (request, response, next) => {
+    queries.read("bands", request.params.id).then(all_users => {
+        all_users
+            ? response.json({all_users})
+            : response.status(404).json({message: 'Not found'})
+    }).catch(next);
+  });
+  
+  router.post("/all_users", (request, response, next) => {
+    queries.create("all_users", request.body).then(all_users => {
+        response.status(201).json({all_users: all_users});
+    }).catch(next);
+  });
+  
+  router.delete("/:id", (request, response, next) => {
+    queries.delete("all_users", request.params.id).then(() => {
+        response.status(204).json({deleted: true});
+    }).catch(next);
+  });
+  
+  router.put("/:id", (request, response, next) => {
+    queries.update("all_users", request.params.id, request.body).then(all_users => {
+        response.json({all_users: all_users[0]});
+    }).catch(next);
+  });
+
+
+
+module.exports = router;
+
+
+
+
+
+// router.post('/all_users', (req, res, next) => {
+//     queries.create("all_users", request.body.id)
 //     .insert({
 //         //left side is database columns, right side is 'names' in ejs file 
 //         mover_username: req.body.mover_username,
@@ -37,5 +69,3 @@ router.get('/all_users', (req, res) => {
 //         next(err);
 //     });
 //   });
-
-module.exports = router;
